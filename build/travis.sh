@@ -13,6 +13,7 @@ git clone https://github.com/spryker/demoshop.git $SHOP_DIR
 cd $SHOP_DIR
 composer self-update && composer --version
 composer install --no-interaction
+composer config repositories.logger git https://github.com/spryker-middleware/logger.git
 mkdir -p data/DE/logs
 chmod -R 777 data/
 ./config/Shared/ci/travis/install_elasticsearch.sh
