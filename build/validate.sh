@@ -133,7 +133,7 @@ fi
 
 cd $SHOP_DIR
 checkWithLatestDemoShop
-if [ -d "vendor/spryker-eco/$MODULE_NAME/src" ]; then
+if [ -d "vendor/spryker-middleware/$MODULE_NAME/src" ]; then
     checkArchRules
     checkCodeSniffRules
     checkPHPStan
