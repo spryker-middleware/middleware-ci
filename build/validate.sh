@@ -54,11 +54,11 @@ function checkArchRules {
 }
 
 function checkCodeSniffRules {
-    licenseFile="$TRAVIS_BUILD_DIR/.license"
-    if [ -f "$licenseFile" ]; then
-        echo "Preparing correct license for code sniffer..."
-        cp "$licenseFile" "$TRAVIS_BUILD_DIR/$SHOP_DIR/.license"
-    fi
+#    licenseFile="$TRAVIS_BUILD_DIR/.license"
+#    if [ -f "$licenseFile" ]; then
+#        echo "Preparing correct license for code sniffer..."
+#        cp "$licenseFile" "$TRAVIS_BUILD_DIR/$SHOP_DIR/.license"
+#    fi
 
     echo "Running code sniffer..."
     errors=`vendor/bin/console code:sniff:style "vendor/spryker-middleware/$MODULE_NAME/src"`
