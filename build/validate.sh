@@ -27,8 +27,8 @@ function runTests {
     ./setup_test -f
 
     echo "Running tests..."
-    "$TRAVIS_BUILD_DIR/$SHOP_DIR/vendor/bin/codecept" build -c "vendor/spryker-eco/$MODULE_NAME/"
-    "$TRAVIS_BUILD_DIR/$SHOP_DIR/vendor/bin/codecept" run -c "vendor/spryker-eco/$MODULE_NAME/"
+    "$TRAVIS_BUILD_DIR/$SHOP_DIR/vendor/bin/codecept" build -c "vendor/spryker-middleware/$MODULE_NAME/"
+    "$TRAVIS_BUILD_DIR/$SHOP_DIR/vendor/bin/codecept" run -c "vendor/spryker-middleware/$MODULE_NAME/"
     if [ "$?" = 0 ]; then
         buildMessage="${buildMessage}\n${GREEN}Tests are passing"
     else
@@ -42,7 +42,7 @@ function runTests {
 
 function checkArchRules {
     echo "Running Architecture sniffer..."
-    errors=`vendor/bin/phpmd "vendor/spryker-eco/$MODULE_NAME/src" text vendor/spryker/architecture-sniffer/src/ruleset.xml --minimumpriority=2 | grep -v __construct`
+    errors=`vendor/bin/phpmd "vendor/spryker-middleware/$MODULE_NAME/src" text vendor/spryker/architecture-sniffer/src/ruleset.xml --minimumpriority=2 | grep -v __construct`
 
     if [[ "$errors" = "" ]]; then
         buildMessage="$buildMessage\n${GREEN}Architecture sniffer reports no errors"
@@ -61,7 +61,7 @@ function checkCodeSniffRules {
     fi
 
     echo "Running code sniffer..."
-    errors=`vendor/bin/console code:sniff:style "vendor/spryker-eco/$MODULE_NAME/src"`
+    errors=`vendor/bin/console code:sniff:style "vendor/spryker-middleware/$MODULE_NAME/src"`
     errorsPresent=$?
 
     if [[ "$errorsPresent" = "0" ]]; then
@@ -76,7 +76,7 @@ function checkPHPStan {
     echo "Updating code-completition..."
     vendor/bin/console dev:ide:generate-auto-completion
     echo "Running PHPStan..."
-    errors=`php -d memory_limit=2048M vendor/bin/phpstan analyze -c phpstan.neon "vendor/spryker-eco/$MODULE_NAME/src" -l 2`
+    errors=`php -d memory_limit=2048M vendor/bin/phpstan analyze -c phpstan.neon "vendor/spryker-middleware/$MODULE_NAME/src" -l 2`
     errorsPresent=$?
 
     if [[ "$errorsPresent" = "0" ]]; then
@@ -90,7 +90,7 @@ function checkPHPStan {
 function checkWithLatestDemoShop {
     echo "Checking module with latest Demo Shop..."
     composer config repositories.ecomodule path "$TRAVIS_BUILD_DIR/$MODULE_DIR"
-    composer require "spryker-eco/$MODULE_NAME @dev" --prefer-source
+    composer require "spryker-middleware/$MODULE_NAME @dev" --prefer-source
     result=$?
 
     if [ "$result" = 0 ]; then
@@ -114,7 +114,7 @@ function checkLatestVersionOfModuleWithDemoShop {
     fi
     buildMessage="${buildMessage}\nUpdated dependencies in module to match Demo Shop\n$updates"
     echo "Installing module with updated dependencies..."
-    composer require "spryker-eco/$MODULE_NAME @dev" --prefer-source
+    composer require "spryker-middleware/$MODULE_NAME @dev" --prefer-source
 
     result=$?
     if [ "$result" = 0 ]; then
