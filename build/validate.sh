@@ -54,11 +54,11 @@ function checkArchRules {
 }
 
 function checkCodeSniffRules {
-
-    cp "/**
- * Copyright © 2016-present Spryker Systems GmbH. All rights reserved.
- * Use of this software requires acceptance of the Evaluation License Agreement. See LICENSE file.
- */" "$TRAVIS_BUILD_DIR/$SHOP_DIR/.license"
+    licenseFile="$TRAVIS_BUILD_DIR/build/.license"
+    if [ -f "$licenseFile" ]; then
+        echo "Preparing correct license for code sniffer..."
+        cp "$licenseFile" "$TRAVIS_BUILD_DIR/$SHOP_DIR/.license"
+    fi
 
     echo "Running code sniffer..."
     errors=`vendor/bin/console code:sniff:style "vendor/spryker-middleware/$MODULE_NAME/src"`
@@ -114,7 +114,7 @@ function checkLatestVersionOfModuleWithDemoShop {
     fi
     buildMessage="${buildMessage}\nUpdated dependencies in module to match Demo Shop\n$updates"
     echo "Installing module with updated dependencies..."
-    composer require "spryker-middleware/$MODULE_NAME @dev" --prefer-source
+    composer require "spryker-eco/$MODULE_NAME @dev" --prefer-source
 
     result=$?
     if [ "$result" = 0 ]; then
