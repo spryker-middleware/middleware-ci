@@ -20,7 +20,13 @@ chmod -R 777 data/
 
 cat config/Shared/ci/travis/postgresql_ci.config >> config/Shared/ci/travis/config_ci.php
 cp config/Shared/ci/travis/config_ci.php config/Shared/config_default-devtest_DE.php
-cat ecoci/build/.namespaces >> config/Shared/config_default-devtest_DE.php
+
+namespacesFile="$TRAVIS_BUILD_DIR/ecoci/build/.namespaces"
+if [ -f "$namespacesFile" ]; then
+    echo "Preparing config namespaces..."
+    cat ecoci/build/.namespaces >> config/Shared/config_default-devtest_DE.php
+fi
+
 cp config/Shared/ci/travis/params_test_env.sh deploy/setup/params_test_env.sh
 cd ..
 
