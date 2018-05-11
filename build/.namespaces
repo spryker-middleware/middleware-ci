@@ -1,0 +1,7 @@
+
+$config[KernelConstants::CORE_NAMESPACES] = [
+    'SprykerShop',
+    'SprykerMiddleware',
+    'SprykerEco',
+    'Spryker',
+];
