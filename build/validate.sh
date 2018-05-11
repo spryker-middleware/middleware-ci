@@ -54,7 +54,7 @@ function checkArchRules {
 }
 
 function checkCodeSniffRules {
-    licenseFile="$TRAVIS_BUILD_DIR/build/.license"
+    licenseFile="$TRAVIS_BUILD_DIR/ecoci/build/.license"
     if [ -f "$licenseFile" ]; then
         echo "Preparing correct license for code sniffer..."
         cp "$licenseFile" "$TRAVIS_BUILD_DIR/$SHOP_DIR/.license"
