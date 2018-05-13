@@ -54,7 +54,7 @@ function checkArchRules {
 }
 
 function checkCodeSniffRules {
-    licenseFile="$TRAVIS_BUILD_DIR/ecoci/build/.license"
+    licenseFile="$TRAVIS_BUILD_DIR/middleware-ci/build/.license"
     if [ -f "$licenseFile" ]; then
         echo "Preparing correct license for code sniffer..."
         cp "$licenseFile" "$TRAVIS_BUILD_DIR/$SHOP_DIR/.license"
@@ -107,7 +107,7 @@ function checkWithLatestDemoShop {
 
 function checkLatestVersionOfModuleWithDemoShop {
     echo "Merging composer.json dependencies..."
-    updates=`php "$TRAVIS_BUILD_DIR/ecoci/build/merge-composer.php" "$TRAVIS_BUILD_DIR/$MODULE_DIR/composer.json" composer.json "$TRAVIS_BUILD_DIR/$MODULE_DIR/composer.json"`
+    updates=`php "$TRAVIS_BUILD_DIR/middleware-ci/build/merge-composer.php" "$TRAVIS_BUILD_DIR/$MODULE_DIR/composer.json" composer.json "$TRAVIS_BUILD_DIR/$MODULE_DIR/composer.json"`
     if [ "$updates" = "" ]; then
         buildMessage="${buildMessage}\n${GREEN}$MODULE_NAME is compatible with the latest version of modules used in Demo Shop"
         return
