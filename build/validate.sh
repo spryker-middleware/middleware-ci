@@ -23,20 +23,25 @@ function runTests {
         result=$((result+1))
     fi
 
-    echo "Setup for tests..."
-    ./setup_test -f
+    testsDirectory="vendor/spryker-middleware/$MODULE_NAME/tests"
+    if [ -f "$testsDirectory" ]; then
+        echo "Setup for tests..."
+        ./setup_test -f
+        echo "Running tests..."
 
-    echo "Running tests..."
-    "$TRAVIS_BUILD_DIR/$SHOP_DIR/vendor/bin/codecept" build -c "vendor/spryker-middleware/$MODULE_NAME/"
-    "$TRAVIS_BUILD_DIR/$SHOP_DIR/vendor/bin/codecept" run -c "vendor/spryker-middleware/$MODULE_NAME/"
-    if [ "$?" = 0 ]; then
-        buildMessage="${buildMessage}\n${GREEN}Tests are passing"
-    else
-        buildMessage="${buildMessage}\n${RED}Tests are failing"
-        result=$((result+1))
+       "$TRAVIS_BUILD_DIR/$SHOP_DIR/vendor/bin/codecept" build -c "vendor/spryker-middleware/$MODULE_NAME/"
+       "$TRAVIS_BUILD_DIR/$SHOP_DIR/vendor/bin/codecept" run -c "vendor/spryker-middleware/$MODULE_NAME/"
+
+       if [ "$?" = 0 ]; then
+           buildMessage="${buildMessage}\n${GREEN}Tests are passing"
+       else
+           buildMessage="${buildMessage}\n${RED}Tests are failing"
+           result=$((result+1))
+       fi
+       cd "$TRAVIS_BUILD_DIR/$SHOP_DIR"
+       echo "Tests finished"
     fi
-    cd "$TRAVIS_BUILD_DIR/$SHOP_DIR"
-    echo "Tests finished"
+
     return $result
 }
 
