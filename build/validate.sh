@@ -23,11 +23,10 @@ function runTests {
         result=$((result+1))
     fi
 
-    echo "Setup for tests..."
-    ./setup_test -f
-
     if [ -d "vendor/spryker-middleware/$MODULE_NAME/tests" ]; then
-         echo "Running tests..."
+        echo "Setup for tests..."
+        ./setup_test -f
+        echo "Running tests..."
         "$TRAVIS_BUILD_DIR/$SHOP_DIR/vendor/bin/codecept" build -c "vendor/spryker-middleware/$MODULE_NAME/"
         "$TRAVIS_BUILD_DIR/$SHOP_DIR/vendor/bin/codecept" run -c "vendor/spryker-middleware/$MODULE_NAME/"
         if [ "$?" = 0 ]; then
@@ -139,6 +138,7 @@ fi
 
 cd $SHOP_DIR
 checkWithLatestDemoShop
+echo "Debug code"
 if [ -d "vendor/spryker-middleware/$MODULE_NAME/src" ]; then
     checkArchRules
     checkCodeSniffRules
