@@ -40,6 +40,8 @@ function runTests {
        fi
        cd "$TRAVIS_BUILD_DIR/$SHOP_DIR"
        echo "Tests finished"
+    else
+       echo 'Tests skipped'
     fi
 
     return $result
@@ -139,9 +141,12 @@ fi
 cd $SHOP_DIR
 checkWithLatestDemoShop
 if [ -d "vendor/spryker-middleware/$MODULE_NAME/src" ]; then
+    echo "Debug code"
     checkArchRules
     checkCodeSniffRules
     checkPHPStan
+else:
+    echo "Debug code - else"
 fi
 
 echo -e "$buildMessage"
