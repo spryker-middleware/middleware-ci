@@ -23,26 +23,25 @@ function runTests {
         result=$((result+1))
     fi
 
-    testsDirectory="vendor/spryker-middleware/$MODULE_NAME/tests"
-    if [ -f "$testsDirectory" ]; then
-        echo "Setup for tests..."
-        ./setup_test -f
-        echo "Running tests..."
+    echo "Setup for tests..."
+    ./setup_test -f
 
-       "$TRAVIS_BUILD_DIR/$SHOP_DIR/vendor/bin/codecept" build -c "vendor/spryker-middleware/$MODULE_NAME/"
-       "$TRAVIS_BUILD_DIR/$SHOP_DIR/vendor/bin/codecept" run -c "vendor/spryker-middleware/$MODULE_NAME/"
-
-       if [ "$?" = 0 ]; then
-           buildMessage="${buildMessage}\n${GREEN}Tests are passing"
-       else
-           buildMessage="${buildMessage}\n${RED}Tests are failing"
-           result=$((result+1))
-       fi
-       cd "$TRAVIS_BUILD_DIR/$SHOP_DIR"
-       echo "Tests finished"
+    if [ -d "vendor/spryker-middleware/$MODULE_NAME/tests" ]; then
+         echo "Running tests..."
+        "$TRAVIS_BUILD_DIR/$SHOP_DIR/vendor/bin/codecept" build -c "vendor/spryker-middleware/$MODULE_NAME/"
+        "$TRAVIS_BUILD_DIR/$SHOP_DIR/vendor/bin/codecept" run -c "vendor/spryker-middleware/$MODULE_NAME/"
+        if [ "$?" = 0 ]; then
+            buildMessage="${buildMessage}\n${GREEN}Tests are passing"
+        else
+            buildMessage="${buildMessage}\n${RED}Tests are failing"
+            result=$((result+1))
+        fi
     else
-       echo 'Tests skipped'
+        buildMessage="${buildMessage}\n${RED}Tests are skipped"
     fi
+
+    cd "$TRAVIS_BUILD_DIR/$SHOP_DIR"
+    echo "Tests finished"
 
     return $result
 }
@@ -141,12 +140,9 @@ fi
 cd $SHOP_DIR
 checkWithLatestDemoShop
 if [ -d "vendor/spryker-middleware/$MODULE_NAME/src" ]; then
-    echo "Debug code"
     checkArchRules
     checkCodeSniffRules
     checkPHPStan
-else:
-    echo "Debug code - else"
 fi
 
 echo -e "$buildMessage"
