@@ -138,12 +138,9 @@ fi
 
 cd $SHOP_DIR
 checkWithLatestDemoShop
-pwd
-if [ -d "$TRAVIS_BUILD_DIR/$SHOP_DIR/vendor/spryker-middleware/$MODULE_NAME/src" ]; then
-    checkArchRules
-    checkCodeSniffRules
-    checkPHPStan
-fi
+checkArchRules
+checkCodeSniffRules
+checkPHPStan
 
 echo -e "$buildMessage"
 exit $buildResult
