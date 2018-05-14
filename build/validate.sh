@@ -95,7 +95,8 @@ function checkPHPStan {
 function checkWithLatestDemoShop {
     echo "Checking module with latest Demo Shop..."
     composer config repositories.ecomodule path "$TRAVIS_BUILD_DIR/$MODULE_DIR"
-    composer require "spryker-middleware/$MODULE_NAME @dev" --prefer-source
+    echo $(git tag | tail -n 1)
+    composer require "spryker-middleware/$MODULE_NAME dev-dev#`$(git tag | tail -n 1)`" --prefer-source
     result=$?
 
     if [ "$result" = 0 ]; then
