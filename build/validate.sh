@@ -138,8 +138,8 @@ fi
 
 cd $SHOP_DIR
 checkWithLatestDemoShop
-echo "Debug code"
-if [ -d "vendor/spryker-middleware/$MODULE_NAME/src" ]; then
+pwd
+if [ -d "$TRAVIS_BUILD_DIR/$SHOP_DIR/vendor/spryker-middleware/$MODULE_NAME/src" ]; then
     checkArchRules
     checkCodeSniffRules
     checkPHPStan
