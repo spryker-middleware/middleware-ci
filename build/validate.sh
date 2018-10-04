@@ -94,8 +94,8 @@ function checkPHPStan {
 
 function checkWithLatestDemoShop {
     echo "Checking module with latest Demo Shop..."
-    composer config repositories.ecomodule path "$TRAVIS_BUILD_DIR/$MODULE_DIR"
-    composer require "spryker-middleware/$MODULE_NAME @dev" --prefer-source
+    COMPOSER_MEMORY_LIMIT=-1 composer config repositories.ecomodule path "$TRAVIS_BUILD_DIR/$MODULE_DIR"
+    COMPOSER_MEMORY_LIMIT=-1 composer require "spryker-middleware/$MODULE_NAME @dev" --prefer-source
     result=$?
 
     if [ "$result" = 0 ]; then
