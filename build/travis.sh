@@ -12,8 +12,8 @@ if [[ *$TRAVIS_EVENT_TYPE* = 'cron' ]]; then git checkout $(git tag | tail -n 1)
 mkdir $MODULE_DIR
 ls -1 | grep -v ^$MODULE_DIR | grep -v ^middleware-ci | xargs -I{} mv {} $MODULE_DIR
 
-echo "Cloning $PRODUCT_NAME..."
-git clone https://github.com/spryker-shop/$PRODUCT_NAME.git $SHOP_DIR
+echo "Cloning suite-nonsplit..."
+git clone https://github.com/spryker/suite-nonsplit.git $SHOP_DIR
 cd $SHOP_DIR
 
 composer global require hirak/prestissimo
