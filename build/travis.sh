@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 echo "Version of CI scripts:"
 cd middleware-ci
 git log | head -1
@@ -9,7 +11,7 @@ mkdir $MODULE_DIR
 ls -1 | grep -v ^$MODULE_DIR | grep -v ^middleware-ci | xargs -I{} mv {} $MODULE_DIR
 
 echo "Cloning Demo Shop..."
-git clone https://github.com/spryker/demoshop.git $SHOP_DIR
+git clone https://github.com/spryker/suite-nonsplit.git $SHOP_DIR
 cd $SHOP_DIR
 composer self-update && composer --version
 composer config repositories.logger git https://github.com/spryker-middleware/logger.git
