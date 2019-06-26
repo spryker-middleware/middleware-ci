@@ -7,28 +7,41 @@ buildMessage=""
 result=0
 
 function runTests {
-    echo "Setup for tests..."
-    "$TRAVIS_BUILD_DIR/$SHOP_DIR/vendor/bin/install" -r testing -x frontend
-
+    "$TRAVIS_BUILD_DIR/$SHOP_DIR/vendor/bin/console" transfer:generate
     if [ "$?" = 0 ]; then
-        buildMessage="${buildMessage}\n${GREEN}Install for testing was successful"
+        buildMessage="${buildMessage}\n${GREEN}Transfer objects generation was successful"
     else
-        buildMessage="${buildMessage}\n${RED}Install for testing was not successful"
+        buildMessage="${buildMessage}\n${RED}Transfer objects generation was not successful"
         result=$((result+1))
     fi
 
-    echo "Running tests..."
-    "$TRAVIS_BUILD_DIR/$SHOP_DIR/vendor/bin/codecept" build -c "vendor/spryker-middleware/$MODULE_NAME/"
-    "$TRAVIS_BUILD_DIR/$SHOP_DIR/vendor/bin/codecept" run -c "vendor/spryker-middleware/$MODULE_NAME/"
-    if [[ "$?" = 0 ]]; then
-        buildMessage="${buildMessage}\n${GREEN}Tests are passing"
+    "$TRAVIS_BUILD_DIR/$SHOP_DIR/vendor/bin/console" propel:install
+    if [ "$?" = 0 ]; then
+        buildMessage="${buildMessage}\n${GREEN}Propel models generation was successful"
     else
-        buildMessage="${buildMessage}\n${RED}Tests are failing"
+        buildMessage="${buildMessage}\n${RED}Propel models generation was not successful"
         result=$((result+1))
     fi
+
+    if [ -d "vendor/spryker-middleware/$MODULE_NAME/src" ]; then
+         echo "Setup for tests..."
+        ./setup_test -f
+
+        echo "Running tests..."
+        "$TRAVIS_BUILD_DIR/$SHOP_DIR/vendor/bin/codecept" build -c "vendor/spryker-middleware/$MODULE_NAME/"
+        "$TRAVIS_BUILD_DIR/$SHOP_DIR/vendor/bin/codecept" run -c "vendor/spryker-middleware/$MODULE_NAME/"
+        if [ "$?" = 0 ]; then
+            buildMessage="${buildMessage}\n${GREEN}Tests are passing"
+        else
+            buildMessage="${buildMessage}\n${RED}Tests are failing"
+            result=$((result+1))
+        fi
+    else
+        echo "Tests skipped..."
+    fi
+
     cd "$TRAVIS_BUILD_DIR/$SHOP_DIR"
     echo "Tests finished"
-
     return $result
 }
 
@@ -46,8 +59,8 @@ function checkArchRules {
 }
 
 function checkCodeSniffRules {
-    licenseFile="$TRAVIS_BUILD_DIR/.license"
-    if [[ -f "$licenseFile" ]]; then
+    licenseFile="$TRAVIS_BUILD_DIR/middleware-ci/build/.license"
+    if [ -f "$licenseFile" ]; then
         echo "Preparing correct license for code sniffer..."
         cp "$licenseFile" "$TRAVIS_BUILD_DIR/$SHOP_DIR/.license"
     fi
@@ -65,6 +78,8 @@ function checkCodeSniffRules {
 }
 
 function checkPHPStan {
+    echo "Updating code-completition..."
+    vendor/bin/console dev:ide:generate-auto-completion
     echo "Running PHPStan..."
     errors=`php -d memory_limit=2048M vendor/bin/phpstan analyze -c phpstan.neon "vendor/spryker-middleware/$MODULE_NAME/src" -l 2`
     errorsPresent=$?
@@ -77,76 +92,56 @@ function checkPHPStan {
     fi
 }
 
-function checkDependencyViolationFinder {
-    echo "Running DependencyViolationFinder"
-    errors=`vendor/bin/console dev:dependency:find "SprykerMiddleware.$MODULE_NAME" -vvv`
-    errorsPresent=$?
-
-    if [[ "$errorsPresent" = "0" ]]; then
-        buildMessage="$buildMessage\n${GREEN}DependencyViolationFinder reports no errors"
-    else
-        echo -e "$errors"
-        buildMessage="$buildMessage\n${RED}DependencyViolationFinder reports some error(s)"
-    fi
-}
-
-function checkWithLatestShop {
-    echo "Checking module with latest suite-nonsplit..."
-
-    composer config repositories.middlewaremodule path "$TRAVIS_BUILD_DIR/$MODULE_DIR"
-    composer update --with-all-dependencies
-    composer require "spryker-middleware/$MODULE_NAME @dev" --prefer-source
+function checkWithLatestDemoShop {
+    echo "Checking module with latest Demo Shop..."
+    COMPOSER_MEMORY_LIMIT=-1 composer config repositories.ecomodule path "$TRAVIS_BUILD_DIR/$MODULE_DIR"
+    COMPOSER_MEMORY_LIMIT=-1 composer require "spryker-middleware/$MODULE_NAME @dev" --prefer-source
     result=$?
 
-    if [[ "$result" = 0 ]]; then
-        buildMessage="${buildMessage}\n${GREEN}$MODULE_NAME is compatible with the modules used in suite-nonsplit"
+    if [ "$result" = 0 ]; then
+        buildMessage="${buildMessage}\n${GREEN}$MODULE_NAME is compatible with the modules used in Demo Shop"
         if runTests; then
             buildResult=0
-            checkLatestVersionOfModuleWithShop
+            checkLatestVersionOfModuleWithDemoShop
         fi
     else
-        buildMessage="${buildMessage}\n${RED}$MODULE_NAME is not compatible with the modules used in suite-nonsplit"
-        checkLatestVersionOfModuleWithShop
+        buildMessage="${buildMessage}\n${RED}$MODULE_NAME is not compatible with the modules used in Demo Shop"
+        checkLatestVersionOfModuleWithDemoShop
     fi
 }
 
-function checkLatestVersionOfModuleWithShop {
+function checkLatestVersionOfModuleWithDemoShop {
     echo "Merging composer.json dependencies..."
     updates=`php "$TRAVIS_BUILD_DIR/middleware-ci/build/merge-composer.php" "$TRAVIS_BUILD_DIR/$MODULE_DIR/composer.json" composer.json "$TRAVIS_BUILD_DIR/$MODULE_DIR/composer.json"`
-    if [[ "$updates" = "" ]]; then
-        buildMessage="${buildMessage}\n${GREEN}$MODULE_NAME is compatible with the latest version of modules used in suite-nonsplit"
+    if [ "$updates" = "" ]; then
+        buildMessage="${buildMessage}\n${GREEN}$MODULE_NAME is compatible with the latest version of modules used in Demo Shop"
         return
     fi
-
-    buildMessage="${buildMessage}\nUpdated dependencies in module to match suite-nonsplit\n$updates"
+    buildMessage="${buildMessage}\nUpdated dependencies in module to match Demo Shop\n$updates"
     echo "Installing module with updated dependencies..."
     composer require "spryker-middleware/$MODULE_NAME @dev" --prefer-source
 
     result=$?
-    if [[ "$result" = 0 ]]; then
-        buildMessage="${buildMessage}\n${GREEN}$MODULE_NAME is compatible with the latest version of modules used in suite-nonsplit"
+    if [ "$result" = 0 ]; then
+        buildMessage="${buildMessage}\n${GREEN}$MODULE_NAME is compatible with the latest version of modules used in Demo Shop"
         runTests
     else
-        buildMessage="${buildMessage}\n${RED}$MODULE_NAME is not compatible with the latest version of modules used in suite-nonsplit"
+        buildMessage="${buildMessage}\n${RED}$MODULE_NAME is not compatible with the latest version of modules used in Demo Shop"
     fi
 }
 
 updatedFile="$TRAVIS_BUILD_DIR/$SHOP_DIR/vendor/codeception/codeception/src/Codeception/Application.php"
 grep APPLICATION_ROOT_DIR "$updatedFile"
-if [[ $? = 1 ]]; then
+if [ $? = 1 ]; then
     echo "define('APPLICATION_ROOT_DIR', '$TRAVIS_BUILD_DIR/$SHOP_DIR');" >> "$updatedFile"
 fi
 
 cd $SHOP_DIR
-checkWithLatestShop
-
-if [[ -d "vendor/spryker-middleware/$MODULE_NAME/src" ]]; then
+checkWithLatestDemoShop
+if [ -d "vendor/spryker-middleware/$MODULE_NAME/src" ]; then
     checkArchRules
     checkCodeSniffRules
     checkPHPStan
-
-    # will be added:
-    #checkDependencyViolationFinder
 fi
 
 echo -e "$buildMessage"
